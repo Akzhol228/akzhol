@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <style>
+        .progress-bar-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            height: 30px;
+            background-color: #4caf50;
+            border-radius: 5px;
+            text-align: center;
+            color: white;
+            line-height: 30px; /* Center text vertically */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+<div class="container">
+    <h1>{{ problem.title }}</h1>
+    <p>Собранная сумма: {{ problem.collected_amount }} / {{ problem.total_amount }}</p>
+    <div class="progress">
+                                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ problem.progress_percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ problem.progress_percentage }}%">
+                                                {{ problem.progress_percentage }} %
+                                            </div>
+                                        </div>
+    <p>{{ problem.description }}</p>
+    <p><strong>Местоположение:</strong> {{ problem.location }}</p>
+    <p><strong>Дата создания:</strong> {{ problem.created_at }}</p>
+    <button class="btn mt-3" onclick="document.getElementById('donationModal').style.display='block'">
+            Оставить заявку
+        </button>
+
+    <hr>
+    <h2>Предложите идею</h2>
+    <form method="post" action="">
+        {% csrf_token %}
+        {{ solution_form.as_p }}
+        <button type="submit" name="submit_solution" class="btn btn-primary">Отправить</button>
+    </form>
+
+    <hr>
+    <h2>Идея</h2>
+    {% for solution in solutions %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Идея от {{ solution.author.username }}</h5>
+            <p class="card-text">{{ solution.description }}</p>
+            <p><small>Представлено {{ solution.created_at }}</small></p>
+
+            <!-- Форма для голосования -->
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="solution_id" value="{{ solution.id }}">
+                <button type="submit" name="vote" value="up" class="btn btn-success">За</button>
+                <button type="submit" name="vote" value="down" class="btn btn-danger">Против</button>
+                <span>Голоса: {{ solution.total_votes }}</span>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<div id="donationModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('donationModal').style.display='none'">&times;</span>
+                <h2>Оставить заявку</h2>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ donation_form.as_p }}
+                    <button type="submit" name="submit_donation" class="btn">Отправить</button>
+                </form>
+            </div>
+        </div>
+
+<script>
+        // Get the modal
+        var modal = document.getElementById('donationModal');
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html'  %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+<style>
+        .progress-bar-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            width: {{ city_problem.progress_percentage }}%;
+            height: 30px;
+            background-color: #4caf50;
+            border-radius: 5px;
+            text-align: center;
+            color: white;
+            line-height: 30px; /* Center text vertically */
+        }
+    </style>
+<section class="content">
+<!--                <div class="container">-->
+<!--                    <div class="row">-->
+<!--                        <div class="col-lg-8 col-xs-12 col-md-8">-->
+<!--                            <div class="pull-left"><a href="index.html#" class="prevnext"><i class="fa fa-angle-left"></i></a></div>-->
+<!--                            <div class="pull-left">-->
+<!--                                <ul class="paginationforum">-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">1</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">2</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">3</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">4</a></li>-->
+<!--                                    <li><a href="index.html#">5</a></li>-->
+<!--                                    <li><a href="index.html#">6</a></li>-->
+<!--                                    <li><a href="index.html#" class="active">7</a></li>-->
+<!--                                    <li><a href="index.html#">8</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">9</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">10</a></li>-->
+<!--                                    <li class="hidden-xs hidden-md"><a href="index.html#">11</a></li>-->
+<!--                                    <li class="hidden-xs hidden-md"><a href="index.html#">12</a></li>-->
+<!--                                    <li class="hidden-xs hidden-sm hidden-md"><a href="index.html#">13</a></li>-->
+<!--                                    <li><a href="index.html#">1586</a></li>-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                            <div class="pull-left"><a href="index.html#" class="prevnext last"><i class="fa fa-angle-right"></i></a></div>-->
+<!--                            <div class="clearfix"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+    <br><br>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-8">
+                            <!-- POST -->
+                            {% for problem in problems %}
+                            <div class="post">
+                                <div class="wrap-ut pull-left">
+                                    <div class="userinfo pull-left">
+                                        <div class="avatar">
+                                            <img src="{% static 'images/avatar.jpg' %}" alt="" />
+                                            <div class="status green">&nbsp;</div>
+                                        </div>
+
+                                        <div class="icons">
+                                            <img src="{% static 'images/icon1.jpg' %}" alt="" /><img src="{% static 'images/icon4.jpg' %}" alt="" />
+                                        </div>
+                                    </div>
+                                    <div class="posttext pull-left">
+                                        <h2><a href="{% url 'forum:city_problem_detail' problem.id %}">{{problem.title}}</a></h2>
+                                        <p>Собранная сумма: {{ problem.collected_amount }} / {{ problem.total_amount }}</p>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" aria-valuenow="{{ problem.progress_percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ problem.progress_percentage }}%">
+                                                {{ problem.progress_percentage }} %
+                                            </div>
+                                        </div>
+                                        <p>{{problem.description}}</p>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="postinfo pull-left">
+                                    <div class="comments">
+                                        <div class="commentbg">
+                                            {{ problem.solutions|sum_votes }}
+                                            <div class="mark"></div>
+                                        </div>
+
+                                    </div>
+                                    <div class="views"><i class="fa fa-eye"></i> {{ problem.solutions.count }}</div>
+                                    <div class="time"><i class="fa fa-clock-o"></i> {{ problem.created_at }}</div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            {% endfor %}
+
+
+
+                        </div>
+                        <div class="col-lg-4 col-md-4">
+
+                            <!-- -->
+                            <div class="sidebarblock">
+                                <h3>Категории</h3>
+                                <div class="divline"></div>
+                                <div class="blocktxt">
+                                    <ul class="cats">
+                                        {% for сategory in сategories %}
+                                        <li><a href="{% url 'forum:forum_list' сategory.id %}">{{сategory.name}} <span class="badge pull-right">{{ category.сityproblem_set.count }}</span></a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- -->
+                            {% for poll in polls %}
+                                <div class="sidebarblock">
+                                    <h3>Опрос недели</h3>
+                                    <div class="divline"></div>
+                                    <div class="blocktxt">
+                                        <p>Какое направление в развитии транспортной инфраструктуры должно стать приоритетным для улучшения качества жизни в городах?</p>
+                                        <form id="poll-form" method="post" class="form">
+                                            {% csrf_token %}
+                                            <table class="poll">
+                                                {% for answer in poll.answers.all %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar color{{ forloop.counter }}" role="progressbar" aria-valuenow="{{ answer.votes }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ answer.votes }}%">
+                                                                {{ answer.answer_text }}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="chbox">
+                                                        <input id="opt{{ forloop.counter }}" type="radio" name="answer" value="{{ answer.id }}">
+                                                        <label for="opt{{ forloop.counter }}"></label>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </table>
+                                            <button type="submit">Проголосовать</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+
+<!--                            &lt;!&ndash; &ndash;&gt;-->
+<!--                            <div class="sidebarblock">-->
+<!--                                <h3>Мои активные темы</h3>-->
+<!--                                <div class="divline"></div>-->
+<!--                                <div class="blocktxt">-->
+<!--                                    <a href="index.html#">Внедрение интеллектуальных транспортных систем для управления потоками</a>-->
+<!--                                </div>-->
+<!--                                <div class="divline"></div>-->
+<!--                                <div class="blocktxt">-->
+<!--                                    <a href="index.html#">Развитие электромобильности и инфраструктуры для зарядки электромобилей</a>-->
+<!--                                </div>-->
+<!--                                <div class="divline"></div>-->
+<!--                                <div class="blocktxt">-->
+<!--                                    <a href="index.html#">Поддержка и развитие каршеринга и других сервисов совместного использования транспорта</a>-->
+<!--                                </div>-->
+<!--                                <div class="divline"></div>-->
+<!--                                <div class="blocktxt">-->
+<!--                                    <a href="index.html#">Улучшение инфраструктуры для пешеходов (тротуары, пешеходные зоны)</a>-->
+<!--                                </div>-->
+<!--                                <div class="divline"></div>-->
+<!--                                <div class="blocktxt">-->
+<!--                                    <a href="index.html#">Разработка и внедрение беспилотных транспортных систем</a>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+<!--                <div class="container">-->
+<!--                    <div class="row">-->
+<!--                        <div class="col-lg-8 col-xs-12">-->
+<!--                            <div class="pull-left"><a href="index.html#" class="prevnext"><i class="fa fa-angle-left"></i></a></div>-->
+<!--                            <div class="pull-left">-->
+<!--                                <ul class="paginationforum">-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">1</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">2</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">3</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">4</a></li>-->
+<!--                                    <li><a href="index.html#">5</a></li>-->
+<!--                                    <li><a href="index.html#">6</a></li>-->
+<!--                                    <li><a href="index.html#" class="active">7</a></li>-->
+<!--                                    <li><a href="index.html#">8</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">9</a></li>-->
+<!--                                    <li class="hidden-xs"><a href="index.html#">10</a></li>-->
+<!--                                    <li class="hidden-xs hidden-md"><a href="index.html#">11</a></li>-->
+<!--                                    <li class="hidden-xs hidden-md"><a href="index.html#">12</a></li>-->
+<!--                                    <li class="hidden-xs hidden-sm hidden-md"><a href="index.html#">13</a></li>-->
+<!--                                    <li><a href="index.html#">1586</a></li>-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                            <div class="pull-left"><a href="index.html#" class="prevnext last"><i class="fa fa-angle-right"></i></a></div>-->
+<!--                            <div class="clearfix"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+
+            </section>
+{% endblock %}

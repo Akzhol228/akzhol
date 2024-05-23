@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Список новых идей</h1>
+    <a href="{% url 'forum:cityproblem_create' %}" class="btn btn-primary mb-3">Добавить новую проблему</a><br><br>
+    <div class="list-group">
+        {% for problem in problems %}
+        <div class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5>{{ problem.title }}</h5>
+                    <p>{{ problem.description|truncatechars:150 }}</p>
+                    <small>Опубликовал {{ problem.author.username }} {{ problem.created_at|date:"d.m.Y" }}</small>
+                </div>
+                <div>
+                    <!-- Кнопки для редактирования и удаления видны только если пользователь является автором проблемы -->
+                    {% if problem.author == request.user %}
+                        <a href="{% url 'forum:cityproblem_update' problem.id %}" class="btn btn-sm btn btn-success">Изменить</a>
+                        <a href="{% url 'forum:cityproblem_delete' problem.id %}" class="btn btn-sm btn btn-danger">Удалить</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Пока не зарегистрировано никаких проблем.</p>
+        {% endfor %}
+    </div>
+    <div class="mt-4">
+        {% if problems.has_other_pages %}
+            <ul class="pagination">
+                {% if problems.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ problems.previous_page_number }}">Назад</a></li>
+                {% endif %}
+
+                {% for num in problems.paginator.page_range %}
+                    {% if problems.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if problems.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ problems.next_page_number }}">Вперёд</a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
